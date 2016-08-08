@@ -1,0 +1,13 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: lidanyang
+ * Date: 16/8/8
+ * Time: 下午10:14
+ */
+
+define("APPKEY", "");
+define("SECRET", "");
+
+define("ACCOUNT", "");
+define("PASSWORD" , "");

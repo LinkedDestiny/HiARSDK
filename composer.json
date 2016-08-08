@@ -1,0 +1,15 @@
+{
+    "name": "hiar/sdk",
+    "authors": [
+        {
+            "name": "lidanyang",
+            "email": "lancelot@boxiao.media"
+        }
+    ],
+    "require": {
+
+    },
+    "autoload": {
+        "psr-0": { "HiAR\\": "" }
+    }
+}
