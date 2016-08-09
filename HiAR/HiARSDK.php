@@ -489,7 +489,7 @@ class HiARSDK
         $url = "/v1/reco/recognize";
 
         $data['appKey'] = $this->appkey;
-        $data['timestamp'] = time();
+        $data['timestamp'] = strval(time());
         $data['nonce'] = $this->randStr();
         $data['number'] = $number;
 
@@ -498,16 +498,14 @@ class HiARSDK
         $param['data'] = base64_encode(http_build_query($data));
         $param['image'] = new \CURLFile(realpath($image));
 
-        $rc = HTTPUtils::postFile(self::DOMAIN . $url, $param, $this->make_sign(), $error);
+        $rc = HTTPUtils::postFile(self::DOMAIN . $url, $param,
+            $this->make_sign($data['timestamp'],$data['nonce'] ), $error);
         if( !$rc || $rc['retCode'] != 0 )
         {
             return $rc;
         }
-        var_dump($rc);
-        $this->token  = $rc['token'];
-        $this->expire = time() + $rc['expire'];
 
-        return $rc['info'];
+        return $rc['items'];
     }
 
 
@@ -521,18 +519,16 @@ class HiARSDK
         return $header;
     }
 
-    private function make_sign()
+    private function make_sign($time, $nonce)
     {
         $param[] = $this->appkey;
         $param[] = $this->secret;
-        $param[] = strval(time());
-        $param[] = $this->randStr();
+        $param[] = $time;
+        $param[] = $nonce;
 
         sort($param, SORT_STRING);
-        var_dump($param);
         $payload = hash_hmac('sha1', \implode("" , $param) , $this->secret, true);
         $sign = base64_encode($payload);
-        var_dump($sign);
         $header[] = "HiARAuthorization: {$sign}";
         return $header;
     }
