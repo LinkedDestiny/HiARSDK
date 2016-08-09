@@ -250,10 +250,7 @@ class HiARSDK
     {
         $url = "/v1/collection/{$cid}/publish/{$pubid}";
 
-        $param['cid'] = $cid;
-        $param['pubid'] = $pubid;
-
-        $rc = HTTPUtils::post(self::DOMAIN . $url, $param, $this->make_header(), $error);
+        $rc = HTTPUtils::get(self::DOMAIN . $url, $this->make_header(), $error);
         if( !$rc || $rc['retCode'] != 0 )
         {
             $rc['error'] = $error;
@@ -359,7 +356,7 @@ class HiARSDK
         $url = "/v1/collection/{$cid}/target";
 
         $param['cid'] = $cid;
-        $param['image'] = '@'.$image;
+        $param['image'] = new \CURLFile(realpath($image));
 
         if( !empty($name) )
         {
@@ -371,14 +368,13 @@ class HiARSDK
             $param['meta'] = $meta;
         }
 
-        $rc = HTTPUtils::post(self::DOMAIN . $url, $param, $this->make_header(), $error);
+        $rc = HTTPUtils::postFile(self::DOMAIN . $url, $param, $this->make_header(), $error);
         if( !$rc || $rc['retCode'] != 0 )
         {
             $rc['error'] = $error;
             return $rc;
         }
-
-        return $rc['targetid'];
+        return $rc['target_id'];
     }
 
     /**
@@ -394,7 +390,7 @@ class HiARSDK
         $url = "/v1/collection/{$cid}/target/{$target_id}/name";
 
         $param['cid'] = $cid;
-        $param['targetid'] = $target_id;
+        $param['target_id'] = $target_id;
         $param['name'] = $name;
 
         $rc = HTTPUtils::post(self::DOMAIN . $url, $param, $this->make_header(), $error);
@@ -418,7 +414,7 @@ class HiARSDK
         $url = "/v1/collection/{$cid}/target/{$target_id}";
 
         $param['cid'] = $cid;
-        $param['targetid'] = $target_id;
+        $param['target_id'] = $target_id;
 
         $rc = HTTPUtils::delete(self::DOMAIN . $url, $param, $this->make_header(), $error);
         if( !$rc || $rc['retCode'] != 0 )
@@ -441,15 +437,14 @@ class HiARSDK
      */
     public function getImageList($cid, $from = 0, $count = "10", $cond="date", $order="desc" )
     {
-        $url = "/v1/collection/{$cid}/target";
+        $url = "/v1/collection/{$cid}/target?";
 
-        $param['cid'] = $cid;
         $param['from'] = $from;
         $param['count'] = $count;
         $param['cond'] = $cond;
         $param['order'] = $order;
 
-        $rc = HTTPUtils::post(self::DOMAIN . $url, $param, $this->make_header(), $error);
+        $rc = HTTPUtils::get(self::DOMAIN . $url . http_build_query($param), $this->make_header(), $error);
         if( !$rc || $rc['retCode'] != 0 )
         {
             $rc['error'] = $error;
@@ -469,10 +464,7 @@ class HiARSDK
     {
         $url = "/v1/collection/{$cid}/target/{$target_id}";
 
-        $param['cid'] = $cid;
-        $param['targetid'] = $target_id;
-
-        $rc = HTTPUtils::post(self::DOMAIN . $url, $param, $this->make_header(), $error);
+        $rc = HTTPUtils::get(self::DOMAIN . $url, $this->make_header(), $error);
         if( !$rc || $rc['retCode'] != 0 )
         {
             $rc['error'] = $error;
@@ -504,9 +496,9 @@ class HiARSDK
         $data['collectionIds'] = \implode("," , $collectionIds);
 
         $param['data'] = base64_encode(http_build_query($data));
-        $param['image'] = '@'.$image;
+        $param['image'] = new \CURLFile(realpath($image));
 
-        $rc = HTTPUtils::post(self::DOMAIN . $url, $param, $this->make_sign(), $error);
+        $rc = HTTPUtils::postFile(self::DOMAIN . $url, $param, $this->make_sign(), $error);
         if( !$rc || $rc['retCode'] != 0 )
         {
             return $rc;
